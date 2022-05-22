@@ -1,0 +1,570 @@
+<html>
+<head>
+    <title>pTicket Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="author" content="Emir BARUT">
+    <meta name="description" content="pTicket Bot Dashboard sistemi">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css">
+    <link rel="stylesheet" href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css"/>
+    <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet">
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/radar.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+    
+
+</head>
+
+<body class="bg-gray-900 font-sans leading-normal tracking-normal mt-12">
+
+<header>
+    
+</header>
+
+
+<main>
+	<center><div class="animasyon"></div></center>
+    <div class="flex flex-col">
+    <center><div class="container">
+        <section>
+             <center><h1 class="font-bold text-3xl break-all" style="color:white;">pTicket Bot Kontrol Sayfasi</h1></center>
+                <div class="flex flex-wrap ">
+                    <div class="w-full items-center md:w-1/1 xl:w-1/1 p-6">
+                        <!--Duyuru-->
+                        <div class="bg-gradient-to-b from-green-200 to-green-100 border-b-4 border-green-500 rounded-lg shadow-xl p-5">
+                            <div class="flex flex-row items-center">
+                                
+                                <div class="flex-1 text-clip">
+                                    <h2 class="font-bold uppercase text-gray-600 md:text-center">Duyuru</h2>
+                                    <p id="welcome"></p>
+                                    <script>
+                                        var welcome = 0
+                                        const elementwelcome = document.getElementById('welcome');
+                                        window.setInterval(function () {
+                                            var req = new XMLHttpRequest();
+                                            req.open('GET', 'https://raw.githubusercontent.com/Pocanistaken/pTicket/main/announcement.txt', false);
+                                            req.send(null);
+                                            elementwelcome.innerHTML = req.responseText;
+                                            welcome = parseInt(req.responseText)
+                                        }, 2000)
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <!--/Duyuru-->
+                    </div>
+                </div>
+                <div class="flex flex-wrap ">
+                    <div class="w-full md:w-1/2 xl:w-1/2 p-6">
+                        <!--Kullanıcı sayısı-->
+                        <div class="bg-gradient-to-b from-pink-200 to-pink-100 border-b-4 border-pink-500 rounded-lg shadow-xl p-5">
+                            <div class="flex flex-row items-center">
+                                <div class="flex-shrink pr-4">
+                                    <div class="rounded-full p-5 bg-pink-600"><i class="fas fa-users fa-2x fa-inverse"></i></div>
+                                </div>
+                                <div class="flex-1 text-right md:text-center">
+                                    <h2 class="font-bold uppercase text-gray-600">Total Users</h2>
+                                    <p id="MemberCounter" class="font-bold text-3xl">{{show webPanelMemberCounter}} <span class="text-pink-500"></span></p>
+                                    <script>
+                                        var MemberCounter = 0
+                                        const elementMemberCounter = document.getElementById('MemberCounter');
+                                        window.setInterval(function () {
+                                            var req = new XMLHttpRequest();
+                                            req.open('GET', '/memberCounter', false);
+                                            req.send(null);
+                                            elementMemberCounter.innerHTML = req.responseText + <i class="fas fa-exchange-alt"></i>;
+                                            MemberCounter = parseInt(req.responseText)
+                                        }, 5000)
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <!--/Kullanıcı sayısı-->
+                    </div>
+                    <div class="w-full md:w-1/2 xl:w-1/2 p-6">
+                        <!--Guild sayisi-->
+                        <div class="bg-gradient-to-b from-indigo-200 to-indigo-100 border-b-4 border-indigo-500 rounded-lg shadow-xl p-5">
+                            <div class="flex flex-row items-center">
+                                <div class="flex-shrink pr-4">
+                                    <div class="rounded-full p-5 bg-indigo-600"><i class="fas fa-server fa-2x fa-inverse"></i></div>
+                                </div>
+                                <div class="flex-1 text-right md:text-center">
+                                    <h2 class="font-bold uppercase text-gray-600">Total Guilds</h2>
+                                    <p id="guildCounter" class="font-bold text-3xl">{{show webPanelGuildCounter}} <span class="text-indigo-600"></span></p>
+                                    <script>
+                                        var guildCounter = 0
+                                        const elementguildCounter = document.getElementById('guildCounter');
+                                        window.setInterval(function () {
+                                            var req = new XMLHttpRequest();
+                                            req.open('GET', '/guildCounter', false);
+                                            req.send(null);
+                                            elementguildCounter.innerHTML = req.responseText+ <i class="fas fa-exchange-alt"></i>;
+                                            guildCounter = parseInt(req.responseText)
+                                        }, 5000)
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <!--/Guild sayisi-->
+                    </div>
+                    <div class="w-full md:w-1/2 xl:w-1/2 p-6">
+                        <!--Uptime-->
+                        <div class="bg-gradient-to-b from-blue-200 to-blue-100 border-b-4 border-blue-500 rounded-lg shadow-xl p-5">
+                            <div class="flex flex-row items-center">
+                                <div class="flex-shrink pr-4">
+                                    <div class="rounded-full p-5 bg-blue-600"><i class="fa-solid fa-hourglass fa-2x fa-inverse"></i></div>
+                                </div>
+                                <div class="flex-1 text-right md:text-center">
+                                    <h2 class="font-bold uppercase text-gray-600">Bot Uptime</h2>
+                                    <p id="UpTime" class="font-bold text-3xl">{{show webPanelUptime}}</p>
+                                    <script>
+                                        var UpTime = 0
+                                        const elementUpTime = document.getElementById('UpTime');
+                                        window.setInterval(function () {
+                                            var req = new XMLHttpRequest();
+                                            req.open('GET', '/uptime', false);
+                                            req.send(null);
+                                            elementUpTime.innerHTML = req.responseText;
+                                            UpTime = parseInt(req.responseText)
+                                        }, 5000)
+                                    </script>
+									</div>
+                            </div>
+                        </div>
+                        <!--/Uptime-->
+                        <!--Memnuniyet-->
+                    </div>
+                    <div class="w-full md:w-1/2 xl:w-1/2 p-6">
+                        <!--Uptime-->
+                        <div class="bg-gradient-to-b from-yellow-200 to-yellow-100 border-b-4 border-yellow-500 rounded-lg shadow-xl p-5">
+                            <div class="flex flex-row items-center">
+                                <div class="flex-shrink pr-4">
+                                    <div class="rounded-full p-5 bg-yellow-600"><i class="fa fa-line-chart"></i></div>
+                                </div>
+                                <div class="flex-1 text-right md:text-center">
+                                    <h2 class="font-bold uppercase text-gray-600">Bot Memnuniyet</h2>
+                                    <p id="Memnuniyet" class="font-bold text-3xl">{{show webPanelMemnuniyet}}</p>
+                                    <script>
+                                        var Memnuniyet = 0
+                                        const elementMemnuniyet = document.getElementById('Memnuniyet');
+                                        window.setInterval(function () {
+                                            var req = new XMLHttpRequest();
+                                            req.open('GET', '/Memnuniyet', false);
+                                            req.send(null);
+                                            elementMemnuniyet.innerHTML = req.responseText;
+                                            Memnuniyet = parseInt(req.responseText)
+                                        }, 5000)
+                                    </script>
+									</div>
+                            </div>
+                        </div>
+                        <!--/Memnuniyet-->
+                    </div>
+                </div>
+                <div class="flex flex-row flex-wrap  mt-2">
+                <div class="w-full md:w-1/2 xl:w-1/2 p-6">
+                    <!--Cpu-->
+                    <div class="bg-white border-transparent rounded-lg shadow-xl">
+                        <div class="bg-gradient-to-b from-gray-300 to-gray-100 uppercase text-gray-800 border-b-2 border-gray-300 rounded-tl-lg rounded-tr-lg p-2">
+                            <h id="cpuUsage" class="font-bold uppercase text-gray-600">Cpu Usage:</h>
+                            <script>
+                                var cpuLoad = 0
+                                const elementCpu = document.getElementById('cpuUsage');
+                                window.setInterval(function () {
+                                    var req = new XMLHttpRequest();
+                                    req.open('GET', '/cpuLoadinformation', false);
+                                    req.send(null);
+                                    elementCpu.innerHTML = "Cpu Usage:  " + req.responseText + "%";
+                                    cpuLoad = parseInt(req.responseText)
+                                }, 2000)
+                            </script>
+                            
+                        </div>
+                        <div class="p-5">
+                            <!-- Tasarım -->
+                            <style>
+                                #chartdiv {
+                                width: 100%;
+                                height: 250px;
+                                }
+                                </style>
+
+                                
+                                
+                                <script>
+                                am5.ready(function() {
+                                
+                                
+                                var root = am5.Root.new("chartdiv");
+                                
+                                
+                                root.setThemes([
+                                am5themes_Animated.new(root)
+                                ]);
+                                
+                                
+                                var chart = root.container.children.push(
+                                am5radar.RadarChart.new(root, {
+                                    panX: false,
+                                    panY: false,
+                                    startAngle: 180,
+                                    endAngle: 360
+                                })
+                                );
+                                
+                                chart.getNumberFormatter().set("numberFormat", "#'%'");
+                                
+                                
+                                var axisRenderer = am5radar.AxisRendererCircular.new(root, {
+                                innerRadius: -40
+                                });
+                                
+                                axisRenderer.grid.template.setAll({
+                                stroke: root.interfaceColors.get("background"),
+                                visible: true,
+                                strokeOpacity: 0.8
+                                });
+                                
+                                var xAxis = chart.xAxes.push(
+                                am5xy.ValueAxis.new(root, {
+                                    maxDeviation: 0,
+                                    min: 0,
+                                    max: 100,
+                                    strictMinMax: true,
+                                    renderer: axisRenderer
+                                })
+                                );
+                                
+                                
+                                var axisDataItem = xAxis.makeDataItem({});
+                                
+                                var clockHand = am5radar.ClockHand.new(root, {
+                                pinRadius: 35,
+                                radius: am5.percent(100),
+                                innerRadius: 35,
+                                bottomWidth: 0,
+                                topWidth: 0
+                                });
+                                
+                                clockHand.pin.setAll({
+                                fillOpacity: 0,
+                                strokeOpacity: 0.5,
+                                stroke: am5.color(0x000000),
+                                strokeWidth: 1,
+                                strokeDasharray: [2, 2]
+                                });
+                                clockHand.hand.setAll({
+                                fillOpacity: 0,
+                                strokeOpacity: 0.5,
+                                stroke: am5.color(0x000000),
+                                strokeWidth: 0.5
+                                });
+                                
+                                var bullet = axisDataItem.set(
+                                "bullet",
+                                am5xy.AxisBullet.new(root, {
+                                    sprite: clockHand
+                                })
+                                );
+                                
+                                xAxis.createAxisRange(axisDataItem);
+                                
+                                var label = chart.radarContainer.children.push(
+                                am5.Label.new(root, {
+                                    centerX: am5.percent(50),
+                                    textAlign: "center",
+                                    centerY: am5.percent(50),
+                                    fontSize: "1.5em"
+                                })
+                                );
+                                
+                                axisDataItem.set("cpuLoad", 0);
+                                bullet.get("sprite").on("rotation", function () {
+                                var value = axisDataItem.get("value");
+                                label.set("text", cpuLoad + "%");
+                                });
+                                
+                                setInterval(function () {
+                                var value = cpuLoad;
+                                
+                                axisDataItem.animate({
+                                    key: "value",
+                                    to: value,
+                                    duration: 500,
+                                    easing: am5.ease.out(am5.ease.cubic)
+                                });
+                                
+                                axisRange0.animate({
+                                    key: "endValue",
+                                    to: value,
+                                    duration: 500,
+                                    easing: am5.ease.out(am5.ease.cubic)
+                                });
+                                
+                                axisRange1.animate({
+                                    key: "value",
+                                    to: value,
+                                    duration: 500,
+                                    easing: am5.ease.out(am5.ease.cubic)
+                                });
+                                }, 2000);
+                                
+                                chart.bulletsContainer.set("mask", undefined);
+                                
+                                var colorSet = am5.ColorSet.new(root, {});
+                                
+                                var axisRange0 = xAxis.createAxisRange(
+                                xAxis.makeDataItem({
+                                    above: true,
+                                    value: 0,
+                                    endValue: 0
+                                })
+                                );
+                                
+                                axisRange0.get("axisFill").setAll({
+                                visible: true,
+                                fill: "#e66a0b"
+                                });
+                                
+                                axisRange0.get("label").setAll({
+                                forceHidden: true
+                                });
+                                
+                                var axisRange1 = xAxis.createAxisRange(
+                                xAxis.makeDataItem({
+                                    above: true,
+                                    value: 0,
+                                    endValue: 100
+                                })
+                                );
+                                
+                                axisRange1.get("axisFill").setAll({
+                                visible: true,
+                                fill: "#2a81de"
+                                });
+                                
+                                axisRange1.get("label").setAll({
+                                forceHidden: true
+                                });
+                                
+                                
+                                chart.appear(1000, 100);
+                                
+                                }); 
+                                </script>
+                                
+                                
+                                <div id="chartdiv"></div>
+                        </div>
+                    </div>
+                    <!--/Cpu-->
+                </div>
+
+                <div class="w-full md:w-1/2 xl:w-1/2 p-6">
+                    <!--Ram-->
+                    <div class="bg-white border-transparent rounded-lg shadow-xl">
+                        <div class="bg-gradient-to-b from-gray-300 to-gray-100 uppercase text-gray-800 border-b-2 border-gray-300 rounded-tl-lg rounded-tr-lg p-2">
+                            <h id="ramUsage" class="font-bold uppercase text-gray-600">Max Ram:  {{show webPanelMaxRam}}mb</h>
+                            <script>
+                                var ramUsage = 0
+                                const elementRam = document.getElementById('ramUsage');
+                                window.setInterval(function () {
+                                    var req = new XMLHttpRequest();
+                                    req.open('GET', '/rammax', false);
+                                    req.send(null);
+                                    elementRam.innerHTML = "Max Ram:  {{show webPanelMaxRam}}mb";
+                                    ramUsage = parseInt(req.responseText)
+                                }, 2000)
+                            </script>
+                        </div>
+                        <div class="p-5">
+                            <!-- Tasarım -->
+                            <style>
+                                #chartDivRam {
+                                width: 100%;
+                                height: 250px;
+                                }
+                                </style>
+
+                                
+                                
+                                <script>
+                                am5.ready(function() {
+                                
+                                
+                                var root = am5.Root.new("chartDivRam");
+                                
+                                
+                                root.setThemes([
+                                am5themes_Animated.new(root)
+                                ]);
+                                
+                                
+                                var chart = root.container.children.push(
+                                am5radar.RadarChart.new(root, {
+                                    panX: false,
+                                    panY: false,
+                                    startAngle: 180,
+                                    endAngle: 360
+                                })
+                                );
+                                
+                                chart.getNumberFormatter().set("numberFormat", "#' mb'");
+                                
+                                
+                                var axisRenderer = am5radar.AxisRendererCircular.new(root, {
+                                innerRadius: -40
+                                });
+                                
+                                axisRenderer.grid.template.setAll({
+                                stroke: root.interfaceColors.get("background"),
+                                visible: true,
+                                strokeOpacity: 0.8
+                                });
+                                var xAxis = chart.xAxes.push(
+                                am5xy.ValueAxis.new(root, {
+                                    maxDeviation: 0,
+                                    min: 0,
+                                    max: {{show webPanelMaxRam}},
+                                    strictMinMax: true,
+                                    renderer: axisRenderer
+                                })
+                                );
+                                
+                                
+                                var axisDataItem = xAxis.makeDataItem({});
+                                
+                                var clockHand = am5radar.ClockHand.new(root, {
+                                pinRadius: 35,
+                                radius: am5.percent(100),
+                                innerRadius: 35,
+                                bottomWidth: 0,
+                                topWidth: 0
+                                });
+                                
+                                clockHand.pin.setAll({
+                                fillOpacity: 0,
+                                strokeOpacity: 0.5,
+                                stroke: am5.color(0x000000),
+                                strokeWidth: 1,
+                                strokeDasharray: [2, 2]
+                                });
+                                clockHand.hand.setAll({
+                                fillOpacity: 0,
+                                strokeOpacity: 0.5,
+                                stroke: am5.color(0x000000),
+                                strokeWidth: 0.5
+                                });
+                                
+                                var bullet = axisDataItem.set(
+                                "bullet",
+                                am5xy.AxisBullet.new(root, {
+                                    sprite: clockHand
+                                })
+                                );
+                                
+                                xAxis.createAxisRange(axisDataItem);
+                                
+                                var label = chart.radarContainer.children.push(
+                                am5.Label.new(root, {
+                                    centerX: am5.percent(50),
+                                    textAlign: "center",
+                                    centerY: am5.percent(50),
+                                    fontSize: "1.5em"
+                                })
+                                );
+                                
+                                axisDataItem.set("ramUsage", 0);
+                                bullet.get("sprite").on("rotation", function () {
+                                var value = axisDataItem.get("value");
+                                label.set("text", ramUsage + "mb");
+                                });
+                                
+                                setInterval(function () {
+                                var value = ramUsage;
+                                
+                                axisDataItem.animate({
+                                    key: "value",
+                                    to: value,
+                                    duration: 500,
+                                    easing: am5.ease.out(am5.ease.cubic)
+                                });
+                                
+                                axisRange0.animate({
+                                    key: "endValue",
+                                    to: value,
+                                    duration: 500,
+                                    easing: am5.ease.out(am5.ease.cubic)
+                                });
+                                
+                                axisRange1.animate({
+                                    key: "value",
+                                    to: value,
+                                    duration: 500,
+                                    easing: am5.ease.out(am5.ease.cubic)
+                                });
+                                }, 2000);
+                                
+                                chart.bulletsContainer.set("mask", undefined);
+                                
+                                var colorSet = am5.ColorSet.new(root, {});
+                                
+                                var axisRange0 = xAxis.createAxisRange(
+                                xAxis.makeDataItem({
+                                    above: true,
+                                    value: 0,
+                                    endValue: 0
+                                })
+                                );
+                                
+                                axisRange0.get("axisFill").setAll({
+                                visible: true,
+                                fill: "#e66a0b"
+                                });
+                                
+                                axisRange0.get("label").setAll({
+                                forceHidden: true
+                                });
+                                
+                                var axisRange1 = xAxis.createAxisRange(
+                                xAxis.makeDataItem({
+                                    above: true,
+                                    value: 0,
+                                    endValue: {{show webPanelMaxRam}}
+                                })
+                                );
+                                
+                                axisRange1.get("axisFill").setAll({
+                                visible: true,
+                                fill: "#2a81de"
+                                });
+                                
+                                axisRange1.get("label").setAll({
+                                forceHidden: true
+                                });
+                                
+                                
+                                chart.appear(1000, 100);
+                                
+                                }); 
+                                </script>
+                                
+                                
+                                <div id="chartDivRam"></div>
+                        </div>
+                    </div>
+                    <!--/-->
+                </div>
+
+                
+
+
+			</div>
+	      </section>
+		</div></center>
+    </div>
+</main>
+</body>
+</html>
