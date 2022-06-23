@@ -1,0 +1,15 @@
+Language:
+    Cant-Find-Game: There is no game called {game}
+    Invalid-Email: Your e-mail is invalid {email}
+    Ticket-Close-Confirm: '{member} , you sure to close ticket?'
+    Ticket-Closed: Ticket has been closed by {member}
+    Ticket-Actived: Ticket has been actived by {member}
+    Ticket-Delete: Ticket will be remove in 5 seconds by {member}
+    Ticket-Claimed-By: Ticket is claimed by {member}
+    Succesfully-Send-Ticket-Logs: Succesfully {member} send ticket logs.
+    Thank-For-Joining-Customer-Satisfaction-Program: Thank you for joining Customer Satisfaction Program.
+    Mark-Must-Be-Higher-Than-0: Your mark must be higher than 0
+    Mark-Must-Be-Smaller-Than-5: Your mark must be smaller than 5
+    Preliminary-Information: '**Preliminary Information**'
+    Only-Whitelist-Member-Can-Claim: Only whitelist members can claim ticket.
+    Channel-Is-Claimed: This channel is already claimed by someone.

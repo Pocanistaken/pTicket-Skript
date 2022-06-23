@@ -1,0 +1,160 @@
+Options:
+    IP: ''
+    Token: ''
+    Category-ID: ''
+    Ticket:
+        Topic: '{member}''s ticket'
+        Private:
+            Embed:
+                Title: '**Ticket Closed**'
+                Footer: pTicket - All Rights Reserved
+                Field:
+                    Ticket-ID:
+                        Name: ':id: **Ticket-ID**'
+                    Opened-By:
+                        Name: ':koala: **Opened By**'
+                    Closed-By:
+                        Name: ':koala: **Closed By**'
+                    Reason:
+                        Name: ':koala: **Reason**'
+                    Logs:
+                        Name: ':koala: **Logs**'
+                    Open-Time:
+                        Name: ':koala: **Open Time**'
+        Permissions:
+            Event-Member:
+            - VIEW_CHANNEL
+            - MESSAGE_ADD_REACTION
+            - MESSAGE_ATTACH_FILES
+            Roles:
+                '977891644932227142':
+                - MESSAGE_HISTORY
+                - VIEW_CHANNEL
+                - MESSAGE_HISTORY
+                - MESSAGE_SEND
+                - MANAGE_CHANNEL
+                - MESSAGE_ATTACH_FILES
+                '913884806658555945':
+                - MESSAGE_HISTORY
+                - VIEW_CHANNEL
+                - MESSAGE_HISTORY
+                - MESSAGE_SEND
+                - MANAGE_CHANNEL
+                - MESSAGE_ATTACH_FILES
+        Embed:
+            Title: '**pTicket**'
+            Image: "https://media.discordapp.net/attachments/861646660395073539/977872523679113256/unknown.png?width=750&height=499"
+            Footer: pTicket - All Rights Reserved
+            Description:
+            - ''
+            - Hey {member} you succesfully created ticket
+            - ''
+        Button:
+            Close:
+                Title: Close
+                Emoji: lock
+            Close-Confirm-Close:
+                Title: Close it
+                Emoji: small_red_triangle
+            Close-Confirm-Cancel:
+                Title: Cancel
+                Emoji: wrench
+            Delete:
+                Title: Delete
+                Emoji: outbox_tray
+            Active:
+                Title: Active
+                Emoji: inbox_tray
+            Claim:
+                Title: Claim
+                Emoji: newspaper
+            Rate:
+                Title: Give us a rate
+                Emoji: mailbox_with_mail
+            Satisfaction-Program-End:
+                Title: Thank you!
+                Emoji: ':tada:'
+
+Setup-Embed:
+    Title: '**pTicket**'
+    Thumbnail: "https://media.discordapp.net/attachments/861646660395073539/977872523679113256/unknown.png?width=750&height=499"
+    Footer: pTicket - All Rights Reserved
+    Description:
+    - ''
+    - Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    - sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    - quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    - ''
+    Dropdown:
+        value:
+            Name: Technical support
+            Description: Click here to create ticket!
+            Emoji: wrench
+        value-1:
+            Name: Game support
+            Description: Click here to create ticket!
+            Emoji: video_game
+
+Dropdown:
+    value: create
+    value-1: test
+
+Modal:
+    Game:
+        Name: Create a ticket!
+        Question-1:
+            Name: Which game do you want to get support?
+            Miniumum-Range: 1
+            Maxiumum-Range: 100
+            Required-State: true
+            Placeholder: 'Games: minecraft, unturned, mta'
+        Question-2:
+            Name: Write your problem!
+            Miniumum-Range: 15
+            Maxiumum-Range: 250
+            Required-State: true
+            Placeholder: How to open whitelist on my server?
+        Question-3:
+            Name: Write your e-mail address!
+            Miniumum-Range: 5
+            Maxiumum-Range: 250
+            Required-State: true
+            Placeholder: test@gmail.com
+    Satisfaction:
+        Name: Customer Satisfaction Program
+        Question-1:
+            Name: Rate the support you have received
+            Miniumum-Range: 1
+            Maxiumum-Range: 1
+            Required-State: true
+            Placeholder: 'Example: 5'
+    Ticket-Close:
+        Name: Close Ticket
+        Question-1:
+            Name: Please write the close reason.
+            Miniumum-Range: 1
+            Maxiumum-Range: 200
+            Required-State: true
+            Placeholder: 'Example: Your problem is solved!'
+
+Commands:
+    Leaderboard:
+        Name: leaderboard
+        Description: Shows the top 10 of claim leaderboard.
+        Embed:
+            Name: '**pTicket TOP 10**'
+            Description: '{rank}. {member} - {amount} claims.'
+            Thumbnail: https://cdn.discordapp.com/attachments/984066461280645120/985464892733657138/cloud.jpg
+            Footer: Questioned by {member}
+
+Games:
+- minecraft
+- unturned
+- mcpe
+- fivem
+
+Admin-Member-ID:
+- ""
+
+Whitelist-Role-ID:
+- ""
