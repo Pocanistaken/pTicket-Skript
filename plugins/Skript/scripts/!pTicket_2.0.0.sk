@@ -1,0 +1,1257 @@
+#MIT License
+#
+#Copyright (c) 2022 Pocan
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+#     ___________.____________  ____  __.______________________                       
+#_____\__    ___/|   \_   ___ \|    |/ _|\_   _____/\__    ___/                       
+#\____ \|    |   |   /    \  \/|      <   |    __)_   |    |                          
+#|  |_> >    |   |   \     \___|    |  \  |        \  |    |                          
+#|   __/|____|   |___|\______  /____|__ \/_______  /  |____|                          
+#|__|                        \/        \/        \/                                   
+#   _____  .____    .____                                                             
+#  /  _  \ |    |   |    |                                                            
+# /  /_\  \|    |   |    |                                                            
+#/    |    \    |___|    |___                                                         
+#\____|__  /_______ \_______ \                                                        
+#        \/        \/       \/                                                        
+#__________.___  ________  ___ _______________________                                
+#\______   \   |/  _____/ /   |   \__    ___/   _____/                                
+# |       _/   /   \  ___/    ~    \|    |  \_____  \                                 
+# |    |   \   \    \_\  \    Y    /|    |  /        \                                
+# |____|_  /___|\______  /\___|_  / |____| /_______  /                                
+#        \/            \/       \/                 \/                                 
+#_____________________ __________________________________   _______________________   
+#\______   \_   _____//   _____/\_   _____/\______   \   \ /   /\_   _____/\______ \  
+# |       _/|    __)_ \_____  \  |    __)_  |       _/\   Y   /  |    __)_  |    |  \ 
+# |    |   \|        \/        \ |        \ |    |   \ \     /   |        \ |    `   \
+# |____|_  /_______  /_______  //_______  / |____|_  /  \___/   /_______  //_______  /
+#        \/        \/        \/         \/         \/                   \/         \/
+import:
+	me.ryzeon.transcripts.DiscordHtmlTranscripts
+	me.ryzeon.transcripts.Formatter
+	java.io.File
+	java.io.FileWriter
+	java.nio.file.Files
+	java.nio.file.Path
+	java.nio.file.Paths
+	net.dv8tion.jda.api.Permission
+	java.lang.System
+	java.net.URL
+	java.util.Scanner	
+	java.net.InetAddress
+	java.util.ArrayList
+	java.util.List
+	java.util.Properties
+	net.schmizz.sshj.SSHClient
+	net.schmizz.sshj.transport.verification.PromiscuousVerifier
+	org.bouncycastle.jce.provider.BouncyCastleProvider
+	net.i2p.crypto.eddsa.spec.EdDSAParameterSpec   
+	javax.mail.Transport
+	javax.mail.Session
+	javax.activation.DataHandler   
+	javax.mail.internet.MimeMessage
+	javax.mail.internet.InternetAddress
+	javax.activation.FileDataSource 
+	javax.mail.internet.MimeBodyPart
+	javax.mail.internet.MimeMultipart
+
+
+options:
+	Licence1: RDSDsk3m2-Rj0qctfI9ds3JF5eyjxpJfV-RfhPU5IAjskxj0qctfI9ds3JF5eyjxpJfV-RfhPU5IAj
+	Licence2: sjRj0qctfI9ds3JF5eyjxpJfV-RfhPU5IAjsokch6anPU_e3LWs5xj1jeE5JO8TDU4TC4NJaHl6l
+	Licence3: Rj0qctfI9ds3JF5eyjxpJfV-RfhPU5IAjssdg41-AA29x99727sds1ıo852c42sdd427olfxa50014625873ska38fmdb2
+
+
+
+load:
+	set {TRANSCRIPT_INSTANCE} to DiscordHtmlTranscripts.getInstance()
+	set {version} to "2.0.0"
+	set {debug} to false
+	pTicketUpdateChecker()
+
+expression htpp request from %string%:
+	return type: strings
+	get:
+		set {_url} to new URL(expr-1)
+		set {_connect} to {_url}.openConnection()
+		{_connect}.setRequestMethod("GET")
+		{_connect}.setConnectTimeout(5000)
+		{_connect}.setReadTimeout(5000)
+		set {_scanner} to new Scanner({_connect}.getInputStream())
+		{_scanner}.useDelimiter("\A")
+		return {_scanner}.next() if {_scanner}.hasNext() is true, else null
+
+expression connect (host|remotehost) %string% and port %object% with (user|username) %string% and (password|pass|passwd) %string%:
+	return type: object
+	get:
+		set {_client} to new SSHClient()
+		{_client}.addHostKeyVerifier(new PromiscuousVerifier())
+		{_client}.connect("%expression-1%", expression-2 parsed as int)
+		{_client}.authPassword("%expression-3%", "%expression-4%")
+		return {_client}
+
+
+effect sftp upload file %string% to %string% [with] client %object%: 
+	trigger:
+		set {_sftpclient} to expression-3.newSFTPClient()
+		{_sftpclient}.put(expression-1, expression-2)
+		{_sftpclient}.close()
+
+effect sftp download file %string% from %string% [with] client %object%: 
+	trigger:
+		set {_sftpclient} to expression-3.newSFTPClient()
+		{_sftpclient}.get(expression-1, expression-2)
+		{_sftpclient}.close()
+
+
+expression create [a] new smpt host with address %string%:
+	return type: object
+	get:
+		set {_host} to "127.0.0.1"
+		set {_properties} to System.getProperties()
+		{_properties}.setProperty("%expression-1%", {_host})
+		return {_properties}
+
+
+
+effect (email|mail) send %string% [with] (topic|subject) %string% to receiver (email|mail) %string% and the attachment %string% with transmitter (email|mail) %string% [with] port %integer% [with] (password|pass|passwd) %string% with smpt host %object%: 
+	trigger:
+		set {_session} to Session.getDefaultInstance(expression-8)
+		set {_message} to new MimeMessage({_session})
+		{_message}.setFrom(new InternetAddress(expression-5))
+		{_message}.addRecipient(Message.RecipientType.TO, new InternetAddress(expression-3))
+		{_message}.setSubject("%expression-2%")
+
+		# Body 1
+		set {_body1} to new MimeBodyPart()
+		{_body1}.setText("%expression-1%")
+
+		# Body 2
+		set {_body2} to new MimeBodyPart()
+		set {_source} to new FileDataSource(expression-4)
+		{_body2}.setDataHandler(new DataHandler({_source}))
+		{_body2}.setFileName(expression-4)
+
+		# Multiparty
+		set {_multipart} to new MimeMultipart()
+		{_multipart}.addBodyPart({_body1})
+		{_multipart}.addBodyPart({_body2})
+
+		{_message}.setContent({_multipart})
+		Transport.send({_message})
+
+
+function SftpErrorDetector(client : object, file : object) :: objects:
+	if {_client}.isAuthenticated() != true:
+		add "Auth info is wrong." to {_l::*}
+	if {_client}.isConnected() != true:
+		add "Host is invalid." to {_l::*}
+	if {_file}.exits() != true:
+		add "File is not found." to {_l::*}
+	return {_l::*}
+
+				
+					
+
+function pTicketLoadYAML():
+	load yaml "plugins/pTicket/config.yml" as "config"
+	load yaml "plugins/pTicket/language.yml" as "language"
+	load yaml "plugins/pTicket/data/data.yml" as "data"
+	load yaml "plugins/pTicket/data/claims.yml" as "claim"
+	if yaml "config" is empty:
+		set yaml value "Options.IP" from "config" to ""
+		set yaml value "Options.Token" from "config" to ""
+		set yaml value "Options.Category-ID" from "config" to ""
+		set yaml value "Options.Log-Channel-ID" from "config" to ""
+
+		set yaml value "Options.Ticket.Topic" from "config" to "{member}'s ticket"
+		set yaml value "Options.Ticket.Private.Embed.Title" from "config" to "**Ticket Closed**"
+		set yaml value "Options.Ticket.Private.Embed.Footer" from "config" to "pTicket - All Rights Reserved"
+		set yaml value "Options.Ticket.Private.Embed.Field.Ticket-ID.Name" from "config" to ":id: **Ticket-ID**"
+		set yaml value "Options.Ticket.Private.Embed.Field.Opened-By.Name" from "config" to ":evergreen_tree: **Opened By**"
+		set yaml value "Options.Ticket.Private.Embed.Field.Closed-By.Name" from "config" to ":red_envelope: **Closed By**"
+		set yaml value "Options.Ticket.Private.Embed.Field.Reason.Name" from "config" to ":mailbox: **Reason**"
+		set yaml value "Options.Ticket.Private.Embed.Field.Logs.Name" from "config" to ":scroll: **Logs**"
+		set yaml value "Options.Ticket.Private.Embed.Field.Open-Time.Name" from "config" to ":calendar: **Open Time**"
+
+		set yaml value "Options.Ticket.Giveaway.Embed.Title" from "config" to "**Giveaway Result**"
+		set yaml value "Options.Ticket.Giveaway.Embed.Footer" from "config" to "pTicket - All Rights Reserved"
+		set yaml value "Options.Ticket.Giveaway.Embed.Field.Participant.Name" from "config" to ":person_raising_hand: **Participants**"
+		set yaml value "Options.Ticket.Giveaway.Embed.Field.Winner.Name" from "config" to ":fire: **Winner**"
+
+		set yaml value "Options.Ticket.Sftp.Embed.Title" from "config" to "**File Transfer**"
+		set yaml value "Options.Ticket.Sftp.Embed.Field.Node.Name" from "config" to ":desktop: **Node**"
+		set yaml value "Options.Ticket.Sftp.Embed.Field.Port.Name" from "config" to ":door: **Port**"
+		set yaml value "Options.Ticket.Sftp.Embed.Field.File.Name" from "config" to ":file_folder: **File**"
+		set yaml value "Options.Ticket.Sftp.Embed.Field.Path.Name" from "config" to ":scroll: **Path**"
+		set yaml value "Options.Ticket.Sftp.Embed.Field.Ping.Name" from "config" to ":ok: **Ping**"
+
+		set yaml value "Options.Ticket.Sftp.Embed.Footer" from "config" to "pTicket - All Rights Reserved"		
+
+
+		set yaml value "Options.Ticket.Logs.Embed.Title" from "config" to "pTicket - All Rights Reserved"		
+		add "" to yaml list "Options.Ticket.Logs.Embed.Description" from "config"
+		add "{member} created the ticket parsed as {memberid}" to yaml list "Options.Ticket.Logs.Embed.Description" from "config"
+		add "{channel} channel with id {channelid}" to yaml list "Options.Ticket.Logs.Embed.Description" from "config"
+		add "" to yaml list "Options.Ticket.Logs.Embed.Description" from "config"
+		set yaml value "Options.Ticket.Logs.Embed.Footer" from "config" to "pTicket - All Rights Reserved"
+
+
+
+
+		set yaml value "Setup-Embed.Title" from "config" to "**pTicket**"
+		set yaml value "Setup-Embed.Thumbnail" from "config" to "https://media.discordapp.net/attachments/861646660395073539/977872523679113256/unknown.png?width=750&height=499"
+		set yaml value "Setup-Embed.Footer" from "config" to "pTicket - All Rights Reserved"
+		add "" to yaml list "Setup-Embed.Description" from "config"
+		add "Lorem ipsum dolor sit amet, consectetur adipiscing elit" to yaml list "Setup-Embed.Description" from "config"
+		add "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." to yaml list "Setup-Embed.Description" from "config"
+		add "quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." to yaml list "Setup-Embed.Description" from "config"
+		add "" to yaml list "Setup-Embed.Description" from "config"
+		set yaml value "Setup-Embed.Dropdown.value.Name" from "config" to "Technical support"
+		set yaml value "Setup-Embed.Dropdown.value.Description" from "config" to "Click here to create ticket!"
+		set yaml value "Setup-Embed.Dropdown.value.Emoji" from "config" to "wrench"
+		set yaml value "Setup-Embed.Dropdown.value-1.Name" from "config" to "Game support"
+		set yaml value "Setup-Embed.Dropdown.value-1.Description" from "config" to "Click here to create ticket!"
+		set yaml value "Setup-Embed.Dropdown.value-1.Emoji" from "config" to "video_game"
+		set yaml value "Dropdown.value" from "config" to "technical"
+		set yaml value "Dropdown.value-1" from "config" to "game"
+		add "VIEW_CHANNEL" to yaml list "Options.Ticket.Permissions.Event-Member" from "config"
+		add "MESSAGE_ADD_REACTION" to yaml list "Options.Ticket.Permissions.Event-Member" from "config"
+		add "MESSAGE_ATTACH_FILES" to yaml list "Options.Ticket.Permissions.Event-Member" from "config"
+		add "MESSAGE_SEND" to yaml list "Options.Ticket.Permissions.Event-Member" from "config"
+		
+		add "MESSAGE_HISTORY" to yaml list "Options.Ticket.Permissions.Roles.977891644932227142" from "config"
+		add "VIEW_CHANNEL" to yaml list "Options.Ticket.Permissions.Roles.977891644932227142" from "config"
+		add "MESSAGE_SEND" to yaml list "Options.Ticket.Permissions.Roles.977891644932227142" from "config"
+		add "MANAGE_CHANNEL" to yaml list "Options.Ticket.Permissions.Roles.977891644932227142" from "config"
+		add "MESSAGE_ATTACH_FILES" to yaml list "Options.Ticket.Permissions.Roles.977891644932227142" from "config"
+		add "MESSAGE_HISTORY" to yaml list "Options.Ticket.Permissions.Roles.913884806658555945" from "config"
+		add "VIEW_CHANNEL" to yaml list "Options.Ticket.Permissions.Roles.913884806658555945" from "config"
+		add "MESSAGE_SEND" to yaml list "Options.Ticket.Permissions.Roles.913884806658555945" from "config"
+		add "MANAGE_CHANNEL" to yaml list "Options.Ticket.Permissions.Roles.913884806658555945" from "config"
+		add "MESSAGE_ATTACH_FILES" to yaml list "Options.Ticket.Permissions.Roles.913884806658555945" from "config"
+		set yaml value "Options.Ticket.Embed.Title" from "config" to "**pTicket**"
+		set yaml value "Options.Ticket.Embed.Image" from "config" to "https://media.discordapp.net/attachments/861646660395073539/977872523679113256/unknown.png?width=750&height=499"
+		set yaml value "Options.Ticket.Embed.Footer" from "config" to "pTicket - All Rights Reserved"
+		add "" to yaml list "Options.Ticket.Embed.Description" from "config"
+		add "Hey {member} you succesfully created ticket" to yaml list "Options.Ticket.Embed.Description" from "config"
+		add "" to yaml list "Options.Ticket.Embed.Description" from "config"
+
+		set yaml value "Options.Ticket.Button.Logs.Title" from "config" to "View transcript"
+		set yaml value "Options.Ticket.Button.Logs.Emoji" from "config" to "bookmark_tabs"
+
+		set yaml value "Options.Ticket.Button.Giveaway.Title" from "config" to "Tebrikler!"
+		set yaml value "Options.Ticket.Button.Giveaway.Emoji" from "config" to "tada"
+
+		set yaml value "Options.Ticket.Button.Sftp.Title" from "config" to "Contiune download"
+		set yaml value "Options.Ticket.Button.Sftp.Emoji" from "config" to "open_file_folder"
+
+		set yaml value "Options.Ticket.Button.Sftpdone.Title" from "config" to "Download succesfully"
+		set yaml value "Options.Ticket.Button.Sftpdone.Emoji" from "config" to "tada"
+
+		set yaml value "Options.Ticket.Button.Sftpunsuccesfully.Title" from "config" to "Download failed"
+		set yaml value "Options.Ticket.Button.Sftpunsuccesfully.Emoji" from "config" to "warning"
+
+
+		set yaml value "Options.Ticket.Button.Close.Title" from "config" to "Close"
+		set yaml value "Options.Ticket.Button.Close.Emoji" from "config" to "lock"
+		set yaml value "Options.Ticket.Button.Close-Confirm-Close.Title" from "config" to "Close it"
+		set yaml value "Options.Ticket.Button.Close-Confirm-Close.Emoji" from "config" to "small_red_triangle"
+		set yaml value "Options.Ticket.Button.Close-Confirm-Cancel.Title" from "config" to "Cancel"
+		set yaml value "Options.Ticket.Button.Close-Confirm-Cancel.Emoji" from "config" to "wrench"		
+		set yaml value "Options.Ticket.Button.Delete.Title" from "config" to "Delete"
+		set yaml value "Options.Ticket.Button.Delete.Emoji" from "config" to "outbox_tray"
+		set yaml value "Options.Ticket.Button.Active.Title" from "config" to "Active"
+		set yaml value "Options.Ticket.Button.Active.Emoji" from "config" to "inbox_tray"
+		set yaml value "Options.Ticket.Button.Claim.Title" from "config" to "Claim"
+		set yaml value "Options.Ticket.Button.Claim.Emoji" from "config" to "newspaper"
+		set yaml value "Options.Ticket.Button.Rate.Title" from "config" to "Give us a rate"
+		set yaml value "Options.Ticket.Button.Rate.Emoji" from "config" to "mailbox_with_mail"	
+		set yaml value "Options.Ticket.Button.Satisfaction-Program-End.Title" from "config" to "Thank you!"
+		set yaml value "Options.Ticket.Button.Satisfaction-Program-End.Emoji" from "config" to ":tada:"
+		set yaml value "Modal.Game.Name" from "config" to "Game Support"
+		set yaml value "Modal.Game.Question-1.Name" from "config" to "Which game do you want to get support?"
+		set yaml value "Modal.Game.Question-1.Miniumum-Range" from "config" to 1
+		set yaml value "Modal.Game.Question-1.Maxiumum-Range" from "config" to 100
+		set yaml value "Modal.Game.Question-1.Required-State" from "config" to true
+		set yaml value "Modal.Game.Question-1.Placeholder" from "config" to "Games: minecraft, unturned, mta"
+		set yaml value "Modal.Game.Question-2.Name" from "config" to "Write your problem!"
+		set yaml value "Modal.Game.Question-2.Miniumum-Range" from "config" to 15
+		set yaml value "Modal.Game.Question-2.Maxiumum-Range" from "config" to 250
+		set yaml value "Modal.Game.Question-2.Required-State" from "config" to true
+		set yaml value "Modal.Game.Question-2.Placeholder" from "config" to "How to open whitelist on my server?"
+		set yaml value "Modal.Game.Question-3.Name" from "config" to "Write your e-mail address!"
+		set yaml value "Modal.Game.Question-3.Miniumum-Range" from "config" to 10
+		set yaml value "Modal.Game.Question-3.Maxiumum-Range" from "config" to 250
+		set yaml value "Modal.Game.Question-3.Required-State" from "config" to true
+		set yaml value "Modal.Game.Question-3.Placeholder" from "config" to "test@gmail.com"
+		set yaml value "Modal.Technical.Name" from "config" to "Technical Support"
+		set yaml value "Modal.Technical.Question-1.Name" from "config" to "Write the problem"
+		set yaml value "Modal.Technical.Question-1.Miniumum-Range" from "config" to 10
+		set yaml value "Modal.Technical.Question-1.Maxiumum-Range" from "config" to 350
+		set yaml value "Modal.Technical.Question-1.Required-State" from "config" to true
+		set yaml value "Modal.Technical.Question-1.Placeholder" from "config" to "Example: How to change password of vds?"
+		set yaml value "Modal.Technical.Question-2.Name" from "config" to "Write your e-mail address!"
+		set yaml value "Modal.Technical.Question-2.Miniumum-Range" from "config" to 10
+		set yaml value "Modal.Technical.Question-2.Maxiumum-Range" from "config" to 200
+		set yaml value "Modal.Technical.Question-2.Required-State" from "config" to true
+		set yaml value "Modal.Technical.Question-2.Placeholder" from "config" to "test@gmail.com"
+
+
+
+		set yaml value "Modal.Satisfaction.Name" from "config" to "Customer Satisfaction Program"
+		set yaml value "Modal.Satisfaction.Question-1.Name" from "config" to "Rate the support you have received"
+		set yaml value "Modal.Satisfaction.Question-1.Miniumum-Range" from "config" to 1
+		set yaml value "Modal.Satisfaction.Question-1.Maxiumum-Range" from "config" to 1
+		set yaml value "Modal.Satisfaction.Question-1.Required-State" from "config" to true
+		set yaml value "Modal.Satisfaction.Question-1.Placeholder" from "config" to "Example: 5"
+		set yaml value "Modal.Ticket-Close.Name" from "config" to "Close Ticket"
+		set yaml value "Modal.Ticket-Close.Question-1.Name" from "config" to "Please write the close reason."
+		set yaml value "Modal.Ticket-Close.Question-1.Miniumum-Range" from "config" to 1
+		set yaml value "Modal.Ticket-Close.Question-1.Maxiumum-Range" from "config" to 200
+		set yaml value "Modal.Ticket-Close.Question-1.Required-State" from "config" to true
+		set yaml value "Modal.Ticket-Close.Question-1.Placeholder" from "config" to "Example: Your problem is solved!"
+
+
+		set yaml value "Modal.Sftp.Name" from "config" to "File upload panel"
+		set yaml value "Modal.Sftp.Question-1.Name" from "config" to "The file that will be uploaded"
+		set yaml value "Modal.Sftp.Question-1.Miniumum-Range" from "config" to 1
+		set yaml value "Modal.Sftp.Question-1.Maxiumum-Range" from "config" to 500
+		set yaml value "Modal.Sftp.Question-1.Required-State" from "config" to true
+		set yaml value "Modal.Sftp.Question-1.Placeholder" from "config" to "packs/minecraft/1.18.zip"
+
+		set yaml value "Modal.Sftp.Question-2.Name" from "config" to "Path where the file will be loaded"
+		set yaml value "Modal.Sftp.Question-2.Miniumum-Range" from "config" to 1
+		set yaml value "Modal.Sftp.Question-2.Maxiumum-Range" from "config" to 500
+		set yaml value "Modal.Sftp.Question-2.Required-State" from "config" to true
+		set yaml value "Modal.Sftp.Question-2.Placeholder" from "config" to "/"		
+
+		set yaml value "Modal.Sftplogin.Name" from "config" to "Connection panel"
+		set yaml value "Modal.Sftplogin.Question-1.Name" from "config" to "Connection address"
+		set yaml value "Modal.Sftplogin.Question-1.Miniumum-Range" from "config" to 1
+		set yaml value "Modal.Sftplogin.Question-1.Maxiumum-Range" from "config" to 500
+		set yaml value "Modal.Sftplogin.Question-1.Required-State" from "config" to true
+		set yaml value "Modal.Sftplogin.Question-1.Placeholder" from "config" to "s1.de.node.google.net"
+
+		set yaml value "Modal.Sftplogin.Question-2.Name" from "config" to "Connection port"
+		set yaml value "Modal.Sftplogin.Question-2.Miniumum-Range" from "config" to 1
+		set yaml value "Modal.Sftplogin.Question-2.Maxiumum-Range" from "config" to 500
+		set yaml value "Modal.Sftplogin.Question-2.Required-State" from "config" to true
+		set yaml value "Modal.Sftplogin.Question-2.Placeholder" from "config" to "2022"
+
+		set yaml value "Modal.Sftplogin.Question-3.Name" from "config" to "Username"
+		set yaml value "Modal.Sftplogin.Question-3.Miniumum-Range" from "config" to 1
+		set yaml value "Modal.Sftplogin.Question-3.Maxiumum-Range" from "config" to 500
+		set yaml value "Modal.Sftplogin.Question-3.Required-State" from "config" to true
+		set yaml value "Modal.Sftplogin.Question-3.Placeholder" from "config" to "root"
+
+		set yaml value "Modal.Sftplogin.Question-4.Name" from "config" to "Password"
+		set yaml value "Modal.Sftplogin.Question-4.Miniumum-Range" from "config" to 1
+		set yaml value "Modal.Sftplogin.Question-4.Maxiumum-Range" from "config" to 500
+		set yaml value "Modal.Sftplogin.Question-4.Required-State" from "config" to true
+		set yaml value "Modal.Sftplogin.Question-4.Placeholder" from "config" to "password"
+
+
+
+
+		
+		set yaml value "Commands.Leaderboard.Name" from "config" to "leaderboard"
+		set yaml value "Commands.Leaderboard.Description" from "config" to "Shows the top 10 of claim leaderboard."
+		set yaml value "Commands.Leaderboard.Embed.Name" from "config" to "**pTicket TOP 10**"
+		set yaml value "Commands.Leaderboard.Embed.Description" from "config" to "{rank}. {member} - {amount} claims."
+		set yaml value "Commands.Leaderboard.Embed.Thumbnail" from "config" to "https://cdn.discordapp.com/attachments/984066461280645120/985464892733657138/cloud.jpg"
+		set yaml value "Commands.Leaderboard.Embed.Footer" from "config" to "Questioned by {member}"	
+		add "minecraft" to yaml list "Games" from "config"
+		add "unturned" to yaml list "Games" from "config"
+		add "mcpe" to yaml list "Games" from "config"
+		add "fivem" to yaml list "Games" from "config"
+		add "" to yaml list "Admin-Member-ID" from "config"
+		add "" to yaml list "Whitelist-Role-ID" from "config"
+		save yaml "config"
+	if yaml "data" is empty:
+		set yaml value "Ticket" from "data" to 0 
+		set yaml value "Satisfaction-Marks" from "data" to 0   
+		set yaml value "Satisfaction-Members" from "data" to 0   	
+		save yaml "data"
+	if yaml "language" is empty:
+		set yaml value "Language.Cant-Find-Game" from "language" to "There is no game called {game}"
+		set yaml value "Language.Invalid-Email" from "language" to "Your e-mail is invalid {email}"
+		set yaml value "Language.Ticket-Close-Confirm" from "language" to "{member} , you sure to close ticket?"
+		set yaml value "Language.Ticket-Closed" from "language" to "Ticket has been closed by {member}"
+		set yaml value "Language.Ticket-Actived" from "language" to "Ticket has been actived by {member}"
+		set yaml value "Language.Ticket-Delete" from "language" to "Ticket will be remove in 5 seconds by {member}"
+		set yaml value "Language.Ticket-Claimed-By" from "language" to "Ticket is claimed by {member}"
+		set yaml value "Language.Succesfully-Send-Ticket-Logs" from "language" to "Succesfully {member} send ticket logs."
+		set yaml value "Language.Thank-For-Joining-Customer-Satisfaction-Program" from "language" to "Thank you for joining Customer Satisfaction Program."
+		set yaml value "Language.Mark-Must-Be-Higher-Than-0" from "language" to "Your mark must be higher than 0"
+		set yaml value "Language.Mark-Must-Be-Smaller-Than-5" from "language" to "Your mark must be smaller than 5"
+		set yaml value "Language.Preliminary-Information" from "language" to "**Preliminary Information**"
+		set yaml value "Language.Only-Whitelist-Member-Can-Claim" from "language" to "Only whitelist members can claim ticket."
+		set yaml value "Language.Channel-Is-Claimed" from "language" to "This channel is already claimed by someone."
+		set yaml value "Language.Succesfully-Added-New-Member-To-Ticket" from "language" to "You succesfully added {member} to ticket."
+		set yaml value "Language.Whitelist-Member-Can-Close" from "language" to "Only whitelist members can close the ticket."
+		set yaml value "Language.Sftp-First-Step-Completed" from "language" to "First step is completed."
+		
+		
+		save yaml "language"
+	set {token} to yaml value "Options.Token" from "config"
+	
+function pTicketEnable():
+    set {_ver} to htpp request from "https://raw.githubusercontent.com/Pocanistaken/pTicket/main/version.txt"
+    if ({version}.toString() is not equal to {_ver}.toString()):    
+        send "&8&l[&e&lINFO&8&l] &c%{version}% &f(Your version is &coutdated &fnew version &a%{_ver}% &frealesed , Please update pTicket to &a%{_ver}%&f)" to console
+    pTicketLoadYAML()
+
+function pTicketUpdateChecker():
+	set {_htpp} to htpp request from "https://raw.githubusercontent.com/Pocanistaken/pTicket/main/ip.txt"
+	set {_local} to InetAddress.getLocalHost().getHostAddress()
+	set {_request::*} to split {_htpp} at nl
+	if {_request::*} contains {_local}:
+		pTicketEnable()
+		add "update" to {_updatechecker::*}
+		stop
+	else:
+		while true != false:
+			add "latest" to {_updatechecker::*}
+
+define new bot named "pTicket":
+	token: "%{token}%"
+	intents: default intents
+	policy: all
+	auto reconnect: true
+	compression: none
+	on ready:
+		send "&8&l[&a&lINFO&8&l] &b%event-bot% has been loaded." to console
+
+
+	on guild ready:
+		send "&8&l[&a&lINFO&8&l] &b%event-bot%&f just loaded &6%event-guild%&f guild!" to console	
+		set {_cmd::setup} to new slash command named "setup" with description "Setup the app."
+		set {_cmd::leaderboard} to new slash command named "leaderboard" with description "View the claim leaderboard."
+		set {_cmd::about} to new slash command named "about" with description "About of the bot."
+		set {_cmd::add} to new slash command named "add" with description "Add any member to the ticket."
+		set {_cmd::close} to new slash command named "close" with description "Close the ticket."	
+		set {_cmd::log} to new slash command named "log" with description "View the channel logs."	
+
+		set {_cmd::upload} to new slash command named "upload" with description "Upload files via sftp."	
+		set {_cmd::giveaway} to new slash command named "giveaway" with description "Make a giveaway on the voice channel."	
+		set {_giveaway} to new required string option named "channel" with description "Write the voice channel id."
+		add {_giveaway} to options of {_cmd::giveaway}
+
+		set {_channelid} to new required string option named "channelid" with description "Write the ticket channel id."
+		add {_channelid} to options of {_cmd::log}
+
+		set {_add} to new required user option named "add" with description "Select a user."
+		add {_add} to options of {_cmd::add}
+		update {_cmd::*} locally in guild event-guild
+
+function pTicketSendSetupEmbed(id : object):
+	make new embed:
+		set title of embed to "%yaml value "Setup-Embed.Title" from "config"%"
+		set description of embed to join yaml list "Setup-Embed.Description" from "config" with nl
+		set thumbnail of embed to "%yaml value "Setup-Embed.Thumbnail" from "config"%"
+		set footer of embed to "%yaml value "Setup-Embed.Footer" from "config"%"	
+		set embed color of embed to aqua
+	set {_dropdownRow} to new components row
+	set {_dropdown} to new dropdown with id "pticket"
+	set min range of {_dropdown} to 1
+	set max range of {_dropdown} to 1
+	loop yaml node keys "Setup-Embed.Dropdown" from "config":
+		set {_name} to yaml value "Setup-Embed.Dropdown.%loop-value%.Name" from "config"
+		set {_description} to yaml value "Setup-Embed.Dropdown.%loop-value%.Description" from "config"
+		set {_emoji} to yaml value "Setup-Embed.Dropdown.%loop-value%.Emoji" from "config"
+		add new option with value loop-value named {_name} with description {_description} with reaction {_emoji} to options of {_dropdown}
+	add {_dropdown} to components of {_dropdownRow}
+	post last created embed to channel with id "%{_id}%" with components {_dropdownRow}
+
+function pTicketSendEmbed(t : text, f : text, channel : channel):
+	make new embed:
+		set description of embed to "%{_t}%"
+		set footer of embed to "%{_f}%"	
+		set embed color of embed to aqua	
+	post last created embed to channel {_channel}
+
+function pTicketCreateTicket(channelname : text, problem : text, email : text, i : number, topic : text, categoryid : text, guild : guild, member : member):
+	set {_action} to new text channel action in {_guild}
+	set channel parent of {_action} to category with id {_categoryid}
+	set channel name of {_action} to "%{_channelname}%-%{_i}%"
+	set topic of {_action} to "%{_topic}%"
+	create {_action} and store it in {_channel}
+	remove (view channel) from permissions of public role of {_guild} in {_channel}
+	set {_perm} to new ArrayList()
+	set {_eventmemberpermission::*} to yaml list "Options.Ticket.Permissions.Event-Member" from "config"
+	loop {_eventmemberpermission::*}:
+		set {_parse} to Permission.valueOf(loop-value)
+		{_perm}.add({_parse})
+
+	{_channel}.upsertPermissionOverride({_member}).grant({_perm}).queue()
+	
+	set {_roleperm} to new ArrayList()
+	loop yaml node keys "Options.Ticket.Permissions.Roles" from "config":
+		set {_permission::*} to yaml list "Options.Ticket.Permissions.Roles.%loop-value%" from "config" 
+		loop {_permission::*}:
+			set {_roleparse} to Permission.valueOf(loop-value-2)
+			{_roleperm}.add({_roleparse})
+		set {_role} to role with id loop-value
+		{_channel}.getPermissionContainer().upsertPermissionOverride({_role}).grant({_roleperm}).queue()
+			
+	set {_desc::*} to yaml list "Options.Ticket.Embed.Description" from "config"
+	replace all "{member}" with "<@%discord id of {_member}%>" in {_desc::*}
+	add {_member} to {ticket::%discord id of {_channel}%::members::*}
+	set {ticket::%discord id of {_channel}%::owner} to {_member}
+	set {ticket::%discord id of {_channel}%::date} to "<t:%round(unix timestamp of now)%>"
+	
+	
+	make new embed:
+		set title of embed to "%yaml value "Options.Ticket.Embed.Title" from "config"%"
+		set description of embed to join {_desc::*} with nl
+		set image of embed to "%yaml value "Options.Ticket.Embed.Image" from "config"%"
+		set footer of embed to "%yaml value "Options.Ticket.Embed.Footer" from "config"%"	
+		set embed color of embed to aqua
+	set {_buttons} to new components row
+	add new danger button with url "pticket-close-confirm" named "%yaml value "Options.Ticket.Button.Close.Title" from "config"%" with reaction "%yaml value "Options.Ticket.Button.Close.Emoji" from "config"%" to components of {_buttons}
+	post last created embed to channel {_channel} with components {_buttons}
+
+	make new embed:
+		set title of embed to "%yaml value "Language.Preliminary-Information" from "language"%"
+
+		add inline field named ":red_envelope: Problem" with value "%{_problem}%" to fields of embed
+		add inline field named ":envelope: E-mail" with value "%{_email}%" to fields of embed
+		set footer of embed to "%yaml value "Options.Ticket.Private.Embed.Footer" from "config"%"	
+		set embed color of embed to aqua
+	post last created embed to channel {_channel}
+	pTicketSendChannelCreateLog({_member}, {_channel})
+
+function pTicketSendChannelCreateLog(m : member, c : channel):
+	set {_desc::*} to yaml list "Options.Ticket.Logs.Embed.Description" from "config"
+	set {_channel} to  yaml value "Options.Log-Channel-ID" from "config"
+	replace all "{member}" with "%{_m}%" in {_desc::*}
+	replace all "{memberid}" with discord id of {_m} in {_desc::*}
+	replace all "{channel}" with "%{_c}%" in {_desc::*}
+	replace all "{channelid}" with discord id of {_c} in {_desc::*}
+
+	make new embed:
+		set title of embed to "%yaml value "Options.Ticket.Logs.Embed.Title" from "config"%"
+		set description of embed to join {_desc::*} with nl
+		set footer of embed to "%yaml value "Options.Ticket.Logs.Embed.Footer" from "config"%"	
+		set embed color of embed to aqua
+		set the timestamp of embed to now			
+	post last created embed to channel with id {_channel}
+
+expression embed hex color %string%:
+	return type: strings
+	get:
+		set {_lore} to new URL(expr-1)
+		set {_item} to {_lore}.openConnection()
+		{_item}.setRequestMethod("GET")
+		{_item}.setConnectTimeout(5000)
+		{_item}.setReadTimeout(5000)
+		set {_adder} to new Scanner({_item}.getInputStream())
+		{_adder}.useDelimiter("\A")
+		return {_adder}.next() if {_adder}.hasNext() is true, else null
+	
+on button click:
+	set {_id} to event-string
+	if {_id} is "pticket-close-confirm":
+		set {_desc} to yaml value "Language.Ticket-Close-Confirm" from "language"
+		replace all "{member}" with "<@%discord id of event-member%>" in {_desc}
+		make new embed:
+			set description of embed to "%{_desc}%"
+			set embed color of embed to aqua
+		set {_buttons} to new components row
+		add new danger button with url "pticket-close-reason" named "%yaml value "Options.Ticket.Button.Close-Confirm-Close.Title" from "config"%" with reaction "%yaml value "Options.Ticket.Button.Close-Confirm-Close.Emoji" from "config"%" to components of {_buttons}
+		add new secondary button with url "pticket-cancel" named "%yaml value "Options.Ticket.Button.Close-Confirm-Cancel.Title" from "config"%" with reaction "%yaml value "Options.Ticket.Button.Close-Confirm-Cancel.Emoji" from "config"%" to components of {_buttons}
+		post last created embed to event-channel with components {_buttons} and store it in {lock::%discord id of event-channel%}
+		defer the interaction
+	if {_id} is "pticket-cancel":
+		destroy {lock::%discord id of event-channel%}
+		defer the interaction
+	if {_id} is "pticket-close-reason":
+		set {_list::*} to yaml list "Whitelist-Role-ID" from "config"
+		loop {_list::*}: 	
+			if event-member has discord role with id "%loop-value%":				
+				set {_modal} to "Ticket-Close"
+				set {_modalname} to yaml value "Modal.%{_modal}%.Name" from "config"	
+				set {_modalname1} to yaml value "Modal.%{_modal}%.Question-1.Name" from "config"		
+				set {_m} to new modal with id "%{_modal}%" named "%{_modalname}%"
+				set {_row1} to new components row
+				set {_1min} to yaml value "Modal.%{_modal}%.Question-1.Miniumum-Range" from "config"
+				set {_1max} to yaml value "Modal.%{_modal}%.Question-1.Maxiumum-Range" from "config"
+				set {_1bool} to yaml value "Modal.%{_modal}%.Question-1.Required-State" from "config"
+				set {_1placeholder} to yaml value "Modal.%{_modal}%.Question-1.Placeholder" from "config"	
+				set {_input1} to new text input with id "%{_modal}%-1" named "%{_modalname1}%"
+				set placeholder of {_input1} to "%{_1placeholder}%"
+				set minimum range of {_input1} to {_1min}
+				set maximum range of {_input1} to {_1max}
+				set required state of {_input1} to {_1bool}
+				add {_input1} to components of {_row1}				
+				set components row of {_m} to {_row1}
+				show {_m} to the user	
+				stop	
+
+
+	if {_id} is "pticket-delete":
+		delete {ticket::%discord id of event-channel%::members::*}
+		set {_desc} to yaml value "Language.Ticket-Delete" from "language"
+		replace all "{member}" with "<@%discord id of event-member%>" in {_desc}
+		make new embed:
+			set description of embed to "%{_desc}%"
+			set embed color of embed to aqua	
+		post last created embed to event-channel
+		defer the interaction		
+		wait 5 seconds
+		destroy event-channel
+	if {_id} is "pticket-active":	
+		set {_perm} to new ArrayList()
+		set {_eventmember::*} to yaml list "Options.Ticket.Permissions.Event-Member" from "config"
+		loop {_eventmember::*}:
+			set {_parse} to Permission.valueOf(loop-value)
+			{_perm}.add({_parse})
+		loop {ticket::%discord id of event-channel%::members::*}:
+			set {_guild} to event-guild
+			set {_member} to {_guild}.getMember(loop-value)
+			event-channel.upsertPermissionOverride({_member}).grant({_perm}).queue()
+
+		set {_desc} to yaml value "Language.Ticket-Actived" from "language"
+		replace all "{member}" with "<@%discord id of event-member%>" in {_desc}
+		make new embed:
+			set description of embed to "%{_desc}%"
+			set embed color of embed to aqua		
+		post last created embed to event-channel
+		defer the interaction
+	if {_id} is "pticket-claim":	
+		set {_isclaimed} to yaml value "Claimed.Channels.%discord id of event-channel%" from "claim"
+		if {_isclaimed} != true:
+			set {_claim} to yaml value "Database.%discord id of event-member%.Claim" from "claim"
+			add 1 to {_claim}
+			set yaml value "Database.%discord id of event-member%.Claim" from "claim" to {_claim}
+			set yaml value "Claimed.Channels.%discord id of event-channel%" from "claim" to true
+
+			save yaml "claim"
+			set {_desc} to yaml value "Language.Ticket-Claimed-By" from "language"
+			replace all "{member}" with "<@%discord id of event-user%>" in {_desc}
+			make new embed:
+				set description of embed to "%{_desc}%"
+				set embed color of embed to aqua	
+
+			post last created embed to event-channel
+			defer the interaction
+
+
+		else:
+			set {_language} to yaml value "Language.Channel-Is-Claimed" from "language"
+			replace all "{member}" with "<@%discord id of event-member%>" in {_language}
+					
+			reply with hidden "%{_language}%"
+
+
+
+					
+	if {_id} is "pticket-rate":
+		if {pticket::rate::%discord id of event-user%} is set:		
+			set {_modal} to "Satisfaction"
+			set {_modalname} to yaml value "Modal.%{_modal}%.Name" from "config"	
+			set {_modalname1} to yaml value "Modal.%{_modal}%.Question-1.Name" from "config"		
+			set {_m} to new modal with id "%{_modal}%" named "%{_modalname}%"
+
+			set {_row1} to new components row
+			set {_1min} to yaml value "Modal.%{_modal}%.Question-1.Miniumum-Range" from "config"
+			set {_1max} to yaml value "Modal.%{_modal}%.Question-1.Maxiumum-Range" from "config"
+			set {_1bool} to yaml value "Modal.%{_modal}%.Question-1.Required-State" from "config"
+			set {_1placeholder} to yaml value "Modal.%{_modal}%.Question-1.Placeholder" from "config"	
+
+			set {_input1} to new text input with id "%{_modal}%-1" named "%{_modalname1}%"
+			set placeholder of {_input1} to "%{_1placeholder}%"
+			set minimum range of {_input1} to {_1min}
+			set maximum range of {_input1} to {_1max}
+			set required state of {_input1} to {_1bool}
+			add {_input1} to components of {_row1}
+
+			
+			set components row of {_m} to {_row1}
+
+			show {_m} to the user	
+	if {_id} = "pticket-sftp-%discord id of event-member%":
+		set {_modal} to "Sftp"
+		set {_modalname} to yaml value "Modal.%{_modal}%.Name" from "config"
+		set {_modalname1} to yaml value "Modal.%{_modal}%.Question-1.Name" from "config"
+		set {_modalname2} to yaml value "Modal.%{_modal}%.Question-2.Name" from "config"
+		
+		
+		set {_m} to new modal with id "%{_modal}%" named "%{_modalname}%"
+
+		set {_row1} to new components row
+		set {_row2} to new components row
+		
+		set {_1min} to yaml value "Modal.%{_modal}%.Question-1.Miniumum-Range" from "config"
+		set {_1max} to yaml value "Modal.%{_modal}%.Question-1.Maxiumum-Range" from "config"
+		set {_1bool} to yaml value "Modal.%{_modal}%.Question-1.Required-State" from "config"
+		set {_1placeholder} to yaml value "Modal.%{_modal}%.Question-1.Placeholder" from "config"
+
+		set {_2min} to yaml value "Modal.%{_modal}%.Question-2.Miniumum-Range" from "config"
+		set {_2max} to yaml value "Modal.%{_modal}%.Question-2.Maxiumum-Range" from "config"
+		set {_2bool} to yaml value "Modal.%{_modal}%.Question-2.Required-State" from "config"
+		set {_2placeholder} to yaml value "Modal.%{_modal}%.Question-2.Placeholder" from "config"
+
+
+
+		set {_input1} to new text input with id "%{_modal}%-1" named "%{_modalname1}%"
+		set placeholder of {_input1} to "%{_1placeholder}%"
+		set minimum range of {_input1} to {_1min}
+		set maximum range of {_input1} to {_1max}
+		set required state of {_input1} to {_1bool}
+		add {_input1} to components of {_row1}
+
+		set {_input2} to new text input with id "%{_modal}%-2" named "%{_modalname2}%"
+		set placeholder of {_input2} to "%{_2placeholder}%"
+		set minimum range of {_input2} to {_2min}
+		set maximum range of {_input2} to {_2max}
+		set required state of {_input2} to {_2bool}
+		add {_input2} to components of {_row2}
+		set components row of {_m} to {_row1} and {_row2}
+		show {_m} to the user		
+
+#	defer the interaction 
+
+on dropdown click:
+	set {_id} to event-string
+	set {_value} to yaml value "Dropdown.%selected values%" from "config"
+	if {_value} = "game":
+		set {_modal} to "Game"
+		set {_modalname} to yaml value "Modal.%{_modal}%.Name" from "config"
+		set {_modalname1} to yaml value "Modal.%{_modal}%.Question-1.Name" from "config"
+		set {_modalname2} to yaml value "Modal.%{_modal}%.Question-2.Name" from "config"
+		set {_modalname3} to yaml value "Modal.%{_modal}%.Question-3.Name" from "config"
+		
+		
+		set {_m} to new modal with id "%{_modal}%" named "%{_modalname}%"
+
+		set {_row1} to new components row
+		set {_row2} to new components row
+		set {_row3} to new components row
+		
+		set {_1min} to yaml value "Modal.%{_modal}%.Question-1.Miniumum-Range" from "config"
+		set {_1max} to yaml value "Modal.%{_modal}%.Question-1.Maxiumum-Range" from "config"
+		set {_1bool} to yaml value "Modal.%{_modal}%.Question-1.Required-State" from "config"
+		set {_1placeholder} to yaml value "Modal.%{_modal}%.Question-1.Placeholder" from "config"
+
+		set {_2min} to yaml value "Modal.%{_modal}%.Question-2.Miniumum-Range" from "config"
+		set {_2max} to yaml value "Modal.%{_modal}%.Question-2.Maxiumum-Range" from "config"
+		set {_2bool} to yaml value "Modal.%{_modal}%.Question-2.Required-State" from "config"
+		set {_2placeholder} to yaml value "Modal.%{_modal}%.Question-2.Placeholder" from "config"
+
+		set {_3min} to yaml value "Modal.%{_modal}%.Question-3.Miniumum-Range" from "config"
+		set {_3max} to yaml value "Modal.%{_modal}%.Question-3.Maxiumum-Range" from "config"
+		set {_3bool} to yaml value "Modal.%{_modal}%.Question-3.Required-State" from "config"
+		set {_3placeholder} to yaml value "Modal.%{_modal}%.Question-3.Placeholder" from "config"
+
+		set {_input1} to new text input with id "%{_modal}%-1" named "%{_modalname1}%"
+		set placeholder of {_input1} to "%{_1placeholder}%"
+		set minimum range of {_input1} to {_1min}
+		set maximum range of {_input1} to {_1max}
+		set required state of {_input1} to {_1bool}
+		add {_input1} to components of {_row1}
+
+		set {_input2} to new text input with id "%{_modal}%-2" named "%{_modalname2}%"
+		set placeholder of {_input2} to "%{_2placeholder}%"
+		set minimum range of {_input2} to {_2min}
+		set maximum range of {_input2} to {_2max}
+		set required state of {_input2} to {_2bool}
+		add {_input2} to components of {_row2}
+
+		set {_input3} to new text input with id "%{_modal}%-3" named "%{_modalname3}%"
+		set placeholder of {_input3} to "%{_3placeholder}%"
+		set minimum range of {_input3} to {_3min}
+		set maximum range of {_input3} to {_3max}
+		set required state of {_input3} to {_3bool}
+		add {_input3} to components of {_row3}
+
+
+		set components row of {_m} to {_row1} and {_row2} and {_row3}
+		show {_m} to the user
+	if {_value} = "technical":
+		set {_modal} to "Technical"
+		set {_modalname} to yaml value "Modal.%{_modal}%.Name" from "config"
+		set {_modalname1} to yaml value "Modal.%{_modal}%.Question-1.Name" from "config"
+		set {_modalname2} to yaml value "Modal.%{_modal}%.Question-2.Name" from "config"
+		
+		
+		set {_m} to new modal with id "%{_modal}%" named "%{_modalname}%"
+
+		set {_row1} to new components row
+		set {_row2} to new components row
+		
+		set {_1min} to yaml value "Modal.%{_modal}%.Question-1.Miniumum-Range" from "config"
+		set {_1max} to yaml value "Modal.%{_modal}%.Question-1.Maxiumum-Range" from "config"
+		set {_1bool} to yaml value "Modal.%{_modal}%.Question-1.Required-State" from "config"
+		set {_1placeholder} to yaml value "Modal.%{_modal}%.Question-1.Placeholder" from "config"
+
+		set {_2min} to yaml value "Modal.%{_modal}%.Question-2.Miniumum-Range" from "config"
+		set {_2max} to yaml value "Modal.%{_modal}%.Question-2.Maxiumum-Range" from "config"
+		set {_2bool} to yaml value "Modal.%{_modal}%.Question-2.Required-State" from "config"
+		set {_2placeholder} to yaml value "Modal.%{_modal}%.Question-2.Placeholder" from "config"
+
+
+
+		set {_input1} to new text input with id "%{_modal}%-1" named "%{_modalname1}%"
+		set placeholder of {_input1} to "%{_1placeholder}%"
+		set minimum range of {_input1} to {_1min}
+		set maximum range of {_input1} to {_1max}
+		set required state of {_input1} to {_1bool}
+		add {_input1} to components of {_row1}
+
+		set {_input2} to new text input with id "%{_modal}%-2" named "%{_modalname2}%"
+		set placeholder of {_input2} to "%{_2placeholder}%"
+		set minimum range of {_input2} to {_2min}
+		set maximum range of {_input2} to {_2max}
+		set required state of {_input2} to {_2bool}
+		add {_input2} to components of {_row2}
+
+
+
+
+		set components row of {_m} to {_row1} and {_row2}
+		show {_m} to the user
+ 
+function sort(indices: strings, values: numbers, descending: boolean = true) :: strings:
+	loop {_indices::*}:
+		set {_whole} to rounded down {_values::%loop-index%}
+		set {_fraction} to mod({_values::%loop-index%}, 1) * 10^10
+		set {_sort::%{_whole}%.%{_fraction}%::%loop-index%} to loop-value
+	loop indices of {_sort::*}:
+		loop {_sort::%loop-value%::*}:
+			add 1 to {_index}
+			set {_final::%{_index}%} to loop-value-2
+	return (reversed {_final::*}) if {_descending} is true, else {_final::*}
+
+
+
+on slash command:
+	if event-string = "leaderboard":
+		stop # I will fix it soon. -
+		set {_list::*} to yaml list "Whitelist-Role-ID" from "config"
+		loop {_list::*}: 	
+			if event-member has discord role with id "%loop-value%":
+				loop yaml node keys "Database" from "claim":
+					add yaml value "Database.%loop-value-2%.Claim" from "claim" to {_leaderboard::%loop-value-2%}
+				set {_top::*} to sorted indices of {_leaderboard::*} in descending order
+
+
+
+				set {_desc} to yaml value "Commands.Leaderboard.Embed.Description" from "config"
+				set {_footer} to yaml value "Commands.Leaderboard.Embed.Footer" from "config"
+				replace all "{member}" with "%event-member%" in {_footer}		
+
+
+
+				make embed:
+					set title of the embed to "%yaml value "Commands.Leaderboard.Embed.Name" from "config"%"
+					set the thumbnail of embed to "%yaml value "Commands.Leaderboard.Embed.Thumbnail" from "config"%"
+					set footer of embed to "%{_footer}%"
+					set footer icon of embed to avatar of event-member
+					set the timestamp of embed to now	
+				loop {_top::*}:
+					add 1 to {_rank}
+					broadcast "%{_rank}% %loop-value-2%  - %{_leaderboard::%loop-value-2%}%"
+					replace all "{rank}" with "%{_rank}%" in {_desc}		
+					replace all "{member}" with "<@%loop-value-2%>" in {_desc}		
+					replace all "{amount}" with "%{_leaderboard::%loop-value-2%}%" in {_desc}
+
+					if size of yaml node keys "Database" from "claim" = {_rank}:
+						add inline field named ":trophy:" with value "%{_desc}%" to fields of embed
+
+						post last created embed to channel event-channel
+						stop
+
+				#	stop if size of yaml node keys "Database" from "claim" = {_rank}
+
+
+	if event-string = "setup":
+		defer the interaction and wait
+		set {_list::*} to yaml list "Admin-Member-ID" from "config"
+		loop {_list::*}:
+			if discord id of event-member = "%loop-value%":
+				pTicketSendSetupEmbed(discord id of event-channel)
+				reply with hidden "Done. :partying_face:"
+	if event-string = "about":
+		defer the interaction and wait
+
+		set {_buttons} to new components row
+		add new link button with url "https://discord.gg/4DC8AbWdsw" named "pTicket Discord" with reaction "zap" to components of {_buttons}
+		reply with "This discord bot is running with pTicket %{version}%" with components {_buttons}	
+	if event-string = "log":
+		defer the interaction and wait
+		set {_list::*} to yaml list "Ticket-Log-Role-ID" from "config"
+		loop {_list::*}: 	
+			if event-member has discord role with id "%loop-value%":	
+				set {_arg} to argument "channelid" as string		
+				set {_host} to yaml value "Options.IP" from "config"
+				open private channel of event-member and store it in {_private}
+				set {_buttons} to new components row
+				add new link button with url "http://%{_host}%/discord?tickets=%{_arg}%" named "%yaml value "Options.Ticket.Button.Logs.Title" from "config"%" with reaction "%yaml value "Options.Ticket.Button.Logs.Emoji" from "config"%" to components of {_buttons}
+				post "logs" to channel {_private} with components {_buttons} with files "plugins/Skript/logs/pDiscord/ticket-logs/%{_arg}%/messages.log"
+				reply with "Done. :partying_face:"
+				stop
+	
+	
+	if event-string = "giveaway":
+		defer the interaction and wait
+		set {_list::*} to yaml list "Admin-Member-ID" from "config"
+		loop {_list::*}:
+			if discord id of event-member = "%loop-value%":
+				set {_arg} to argument "channel" as string		
+				set {_users::*} to voice members of voice channel with id "%{_arg}%"
+				set {_winner} to random element out of {_users::*}
+					
+				set {_buttons} to new components row
+				add new disabled secondary button with url "pticket-disabled" named "%yaml value "Options.Ticket.Button.Giveaway.Title" from "config"%" with reaction "%yaml value "Options.Ticket.Button.Giveaway.Emoji" from "config"%" to components of {_buttons}
+				
+				make new embed:
+					set title of embed to "%yaml value "Options.Ticket.Giveaway.Embed.Title" from "config"%"
+					set thumbnail of embed to "%yaml value "Setup-Embed.Thumbnail" from "config"%"
+					add inline field named "%yaml value "Options.Ticket.Giveaway.Embed.Field.Participant.Name" from "config"%" with value "%size of {_users::*}%" to fields of embed
+					add inline field named "%yaml value "Options.Ticket.Giveaway.Embed.Field.Winner.Name" from "config"%" with value "%{_winner}%" to fields of embed
+					set footer of embed to "%yaml value "Options.Ticket.Giveaway.Embed.Footer" from "config"%"	
+					set embed color of embed to aqua
+					set timestamp of embed to now	
+				reply with last embed with components {_buttons}
+
+	if event-string = "add":
+		defer the interaction and wait
+		if discord id of parent of event-channel = (yaml value "Options.Category-ID" from "config"):
+			set {_list::*} to yaml list "Whitelist-Role-ID" from "config"
+			loop {_list::*}: 	
+				if event-member has discord role with id "%loop-value%":
+					set {_arg} to argument "add" as user		
+					add {_arg} to {ticket::%discord id of event-channel%::members::*}
+					set {_guild} to event-guild
+					set {_member} to {_guild}.getMember({_arg})
+					set {_perm} to new ArrayList()
+					set {_eventmember::*} to yaml list "Options.Ticket.Permissions.Event-Member" from "config"
+					loop {_eventmember::*}:
+						set {_parse} to Permission.valueOf(loop-value-2)
+						{_perm}.add({_parse})
+					event-channel.upsertPermissionOverride({_member}).grant({_perm}).queue()
+					set {_language} to yaml value "Language.Succesfully-Added-New-Member-To-Ticket" from "language"
+					replace all "{member}" with "<@%discord id of {_member}%>" in {_language}
+					reply with "%{_language}%"				
+	if event-string = "close":
+		defer the interaction and wait	
+		if discord id of parent of event-channel = (yaml value "Options.Category-ID" from "config"):
+			set {_list::*} to yaml list "Whitelist-Role-ID" from "config"
+			loop {_list::*}: 	
+				if event-member has discord role with id "%loop-value%":	
+					set {_desc} to yaml value "Language.Ticket-Close-Confirm" from "language"
+					replace all "{member}" with "<@%discord id of event-user%>" in {_desc}
+					make new embed:
+						set description of embed to "%{_desc}%"
+						set embed color of embed to aqua
+					set {_buttons} to new components row
+					add new danger button with url "pticket-close-reason" named "%yaml value "Options.Ticket.Button.Close-Confirm-Close.Title" from "config"%" with reaction "%yaml value "Options.Ticket.Button.Close-Confirm-Close.Emoji" from "config"%" to components of {_buttons}
+					add new secondary button with url "pticket-cancel" named "%yaml value "Options.Ticket.Button.Close-Confirm-Cancel.Title" from "config"%" with reaction "%yaml value "Options.Ticket.Button.Close-Confirm-Cancel.Emoji" from "config"%" to components of {_buttons}
+					reply with last created embed with components {_buttons} and store it in {lock::%discord id of event-channel%}
+					stop
+	if event-string = "upload":
+		set {_list::*} to yaml list "Whitelist-Role-ID" from "config"
+		loop {_list::*}: 	
+			if event-member has discord role with id "%loop-value%":	
+				set {_modal} to "Sftplogin"
+				set {_modalname} to yaml value "Modal.%{_modal}%.Name" from "config"
+				set {_modalname1} to yaml value "Modal.%{_modal}%.Question-1.Name" from "config"
+				set {_modalname2} to yaml value "Modal.%{_modal}%.Question-2.Name" from "config"
+				set {_modalname3} to yaml value "Modal.%{_modal}%.Question-3.Name" from "config"
+				set {_modalname4} to yaml value "Modal.%{_modal}%.Question-4.Name" from "config"
+
+				
+				
+				set {_m} to new modal with id "%{_modal}%" named "%{_modalname}%"
+
+				set {_row1} to new components row
+				set {_row2} to new components row
+				set {_row3} to new components row
+				set {_row4} to new components row
+
+			
+				
+				set {_1min} to yaml value "Modal.%{_modal}%.Question-1.Miniumum-Range" from "config"
+				set {_1max} to yaml value "Modal.%{_modal}%.Question-1.Maxiumum-Range" from "config"
+				set {_1bool} to yaml value "Modal.%{_modal}%.Question-1.Required-State" from "config"
+				set {_1placeholder} to yaml value "Modal.%{_modal}%.Question-1.Placeholder" from "config"
+
+				set {_2min} to yaml value "Modal.%{_modal}%.Question-2.Miniumum-Range" from "config"
+				set {_2max} to yaml value "Modal.%{_modal}%.Question-2.Maxiumum-Range" from "config"
+				set {_2bool} to yaml value "Modal.%{_modal}%.Question-2.Required-State" from "config"
+				set {_2placeholder} to yaml value "Modal.%{_modal}%.Question-2.Placeholder" from "config"
+
+				set {_3min} to yaml value "Modal.%{_modal}%.Question-3.Miniumum-Range" from "config"
+				set {_3max} to yaml value "Modal.%{_modal}%.Question-3.Maxiumum-Range" from "config"
+				set {_3bool} to yaml value "Modal.%{_modal}%.Question-3.Required-State" from "config"
+				set {_3placeholder} to yaml value "Modal.%{_modal}%.Question-3.Placeholder" from "config"
+				
+				set {_4min} to yaml value "Modal.%{_modal}%.Question-4.Miniumum-Range" from "config"
+				set {_4max} to yaml value "Modal.%{_modal}%.Question-4.Maxiumum-Range" from "config"
+				set {_4bool} to yaml value "Modal.%{_modal}%.Question-4.Required-State" from "config"
+				set {_4placeholder} to yaml value "Modal.%{_modal}%.Question-4.Placeholder" from "config"		
+
+
+				set {_input1} to new text input with id "%{_modal}%-1" named "%{_modalname1}%"
+				set placeholder of {_input1} to "%{_1placeholder}%"
+				set minimum range of {_input1} to {_1min}
+				set maximum range of {_input1} to {_1max}
+				set required state of {_input1} to {_1bool}
+				add {_input1} to components of {_row1}
+
+				set {_input2} to new text input with id "%{_modal}%-2" named "%{_modalname2}%"
+				set placeholder of {_input2} to "%{_2placeholder}%"
+				set minimum range of {_input2} to {_2min}
+				set maximum range of {_input2} to {_2max}
+				set required state of {_input2} to {_2bool}
+				add {_input2} to components of {_row2}
+
+				set {_input3} to new text input with id "%{_modal}%-3" named "%{_modalname3}%"
+				set placeholder of {_input3} to "%{_3placeholder}%"
+				set minimum range of {_input3} to {_3min}
+				set maximum range of {_input3} to {_3max}
+				set required state of {_input3} to {_3bool}
+				add {_input3} to components of {_row3}
+
+				set {_input4} to new text input with id "%{_modal}%-4" named "%{_modalname4}%"
+				set placeholder of {_input4} to "%{_4placeholder}%"
+				set minimum range of {_input4} to {_4min}
+				set maximum range of {_input4} to {_4max}
+				set required state of {_input4} to {_4bool}
+				add {_input4} to components of {_row4}
+
+
+				set components row of {_m} to {_row1} and {_row2} and {_row3} and {_row4}
+				show {_m} to the user
+			
+
+		
+
+on modal receive:
+	set {_id} to event-string
+	if {_id} = "Game":
+		set {_a::1} to values of text input with id "Game-1"
+		set {_list::*} to yaml list "Games" from "config"
+		if {_list::*} contains {_a::1}:
+			set {_topic} to yaml value "Options.Ticket.Topic" from "config"
+			replace all "{member}" with "<@%discord id of event-member%>" in {_topic}
+			set {_category} to yaml value "Options.Category-ID" from "config"
+			set {_a::2} to values of text input with id "Game-2"
+			set {_a::3} to values of text input with id "Game-3"
+			if {_a::3} contains "@":
+				set {_amount} to yaml value "Ticket" from "data"
+				set yaml value "Ticket" from "data" to {_amount} + 1
+				save yaml "data"
+		
+			
+			
+				pTicketCreateTicket("%{_a::1}%", "%{_a::2}%", "%{_a::3}%", ({_amount} + 1), "%{_topic}%", {_category}, event-guild, event-member)	
+				defer the interaction
+
+			else:
+				set {_language} to yaml value "Language.Invalid-Email" from "language"
+				replace all "{email}" with "%{_a::3}%" in {_language}			
+		else:
+			set {_language} to yaml value "Language.Cant-Find-Game" from "language"
+			replace all "{game}" with "%{_a::1}%" in {_language}
+			
+			reply with hidden "%{_language}%"
+	if {_id} = "technical":
+		set {_a::1} to values of text input with id "Technical-1"
+		set {_a::2} to values of text input with id "Technical-2"
+		if {_a::2} contains "@":
+			set {_topic} to yaml value "Options.Ticket.Topic" from "config"
+			replace all "{member}" with "<@%discord id of event-member%>" in {_topic}
+			set {_category} to yaml value "Options.Category-ID" from "config"
+
+			set {_amount} to yaml value "Ticket" from "data"
+			set yaml value "Ticket" from "data" to {_amount} + 1
+			save yaml "data"
+		
+			pTicketCreateTicket("technical", "%{_a::1}%", "%{_a::2}%", ({_amount} + 1), "%{_topic}%", {_category}, event-guild, event-member)	
+			defer the interaction
+
+		else:
+			set {_language} to yaml value "Language.Invalid-Email" from "language"
+			replace all "{email}" with "%{_a::2}%" in {_language}			
+
+	if {_id} = "Satisfaction":
+		set {_eventmember} to discord id of event-user
+		set {_int} to values of text input with id "Satisfaction-1"
+		if {_int} parsed as integer > 0:
+			if {_int} parsed as integer <= 5:
+				set {_mark} to yaml value "Satisfaction-Marks" from "data"
+				set {_member} to yaml value "Satisfaction-Members" from "data"
+				add {_int} parsed as integer to {_mark}
+				add 1 to {_member}
+				set yaml value "Satisfaction-Marks" from "data" to "%{_mark}%"
+				set yaml value "Satisfaction-Members" from "data" to "%{_member}%"
+				save yaml "data"
+				set {_language} to yaml value "Language.Thank-For-Joining-Customer-Satisfaction-Program" from "language"
+				
+				reply with hidden "%{_language}%"				
+				set {_buttons} to new components row
+				add new disabled secondary button with url "pticket-disabled" named "%yaml value "Options.Ticket.Button.Satisfaction-Program-End.Title" from "config"%" with reaction "%yaml value "Options.Ticket.Button.Satisfaction-Program-End.Emoji" from "config"%" to components of {_buttons}
+
+
+				edit message {pticket::rate::%discord id of event-user%} to show {pticket::embed::%discord id of event-user%} with components row {_buttons}
+			
+			
+				delete {pticket::rate::%discord id of event-user%} #Here is the end of code im just editting in here 
+
+
+			else:
+				set {_language} to yaml value "Language.Mark-Must-Be-Smaller-Than-5" from "language"
+				
+				reply with hidden "%{_language}%"					
+		else:
+			set {_language} to yaml value "Language.Mark-Must-Be-Higher-Than-0" from "language"				
+			reply with hidden "%{_language}%"		
+	if {_id} = "Ticket-Close":
+		set {_reason} to values of text input with id "Ticket-Close-1"
+		destroy {lock::%discord id of event-channel%}
+
+
+		set {_perm} to new ArrayList()
+		set {_eventmember::*} to yaml list "Options.Ticket.Permissions.Event-Member" from "config"
+		loop {_eventmember::*}:
+			set {_parse} to Permission.valueOf(loop-value)
+			{_perm}.add({_parse})
+		loop {ticket::%discord id of event-channel%::members::*}:
+			set {_guild} to event-guild
+			set {_member} to {_guild}.getMember(loop-value)
+			event-channel.upsertPermissionOverride({_member}).deny({_perm}).queue()
+		
+		set {_desc} to yaml value "Language.Ticket-Closed" from "language"
+		replace all "{member}" with "<@%discord id of event-user%>" in {_desc}
+		make new embed:
+			set description of embed to "%{_desc}%"
+			set embed color of embed to aqua
+		set {_buttons} to new components row
+		add new danger button with url "pticket-delete" named "%yaml value "Options.Ticket.Button.Delete.Title" from "config"%" with reaction "%yaml value "Options.Ticket.Button.Delete.Emoji" from "config"%" to components of {_buttons}
+		add new success button with url "pticket-active" named "%yaml value "Options.Ticket.Button.Active.Title" from "config"%" with reaction "%yaml value "Options.Ticket.Button.Active.Emoji" from "config"%" to components of {_buttons}
+		add new secondary button with url "pticket-claim" named "%yaml value "Options.Ticket.Button.Claim.Title" from "config"%" with reaction "%yaml value "Options.Ticket.Button.Claim.Emoji" from "config"%" to components of {_buttons}
+		post last created embed to event-channel with components {_buttons}	
+		
+		set {_host} to yaml value "Options.IP" from "config"
+		set {_memberid} to discord id of {ticket::%discord id of event-channel%::owner}
+		open private channel of {ticket::%discord id of event-channel%::owner} and store it in {_private}
+	
+		
+		make new embed:
+			set title of embed to "%yaml value "Options.Ticket.Private.Embed.Title" from "config"%"
+
+			add inline field named "%yaml value "Options.Ticket.Private.Embed.Field.Ticket-ID.Name" from "config"%" with value "%event-channel%" to fields of embed
+			add inline field named "%yaml value "Options.Ticket.Private.Embed.Field.Opened-By.Name" from "config"%" with value mention tag of {ticket::%discord id of event-channel%::owner} to fields of embed
+			add inline field named "%yaml value "Options.Ticket.Private.Embed.Field.Closed-By.Name" from "config"%" with value "<@%discord id of event-user%>" to fields of embed
+			add inline field named "%yaml value "Options.Ticket.Private.Embed.Field.Reason.Name" from "config"%" with value "%{_reason}%" to fields of embed
+			add inline field named "%yaml value "Options.Ticket.Private.Embed.Field.Logs.Name" from "config"%" with value "[Click me](http://%{_host}%/discord?tickets=%discord id of event-channel%)" to fields of embed
+			add inline field named "%yaml value "Options.Ticket.Private.Embed.Field.Open-Time.Name" from "config"%" with value "%{ticket::%discord id of event-channel%::date}%" to fields of embed
+			set footer of embed to "%yaml value "Options.Ticket.Private.Embed.Footer" from "config"%"	
+			set embed color of embed to aqua
+			set timestamp of embed to now
+		set {pticket::embed::%{_memberid}%} to last created embed
+
+		set {_buttons} to new components row
+		add new secondary button with url "pticket-rate" named "%yaml value "Options.Ticket.Button.Rate.Title" from "config"%" with reaction "%yaml value "Options.Ticket.Button.Rate.Emoji" from "config"%" to components of {_buttons}
+		post last created embed to channel {_private} with components {_buttons} and store it in {pticket::rate::%{_memberid}%}	# And in here im storing it thats all and watch now	
+
+		set {_channel} to event-channel
+		set {_html} to {TRANSCRIPT_INSTANCE}.createTranscript({_channel})
+		set {_path} to Paths.get("./plugins/WebSK/files/pTicket/ticket-logs/%discord id of event-channel%/")
+		Files.createDirectories({_path})
+		set {_file} to new File("./plugins/WebSK/files/pTicket/ticket-logs/%discord id of event-channel%/transcript.html")
+		set {_fileWriter} to new FileWriter({_file})
+		{_fileWriter}.write({_html})
+		{_fileWriter}.close()		
+
+		defer the interaction
+
+	if {_id} = "Sftplogin":
+		defer the interaction
+		set {sftp::%discord id of event-member%::a::1} to values of text input with id "Sftplogin-1"
+		set {sftp::%discord id of event-member%::a::2} to values of text input with id "Sftplogin-2"
+		set {sftp::%discord id of event-member%::a::3} to values of text input with id "Sftplogin-3"
+		set {sftp::%discord id of event-member%::a::4} to values of text input with id "Sftplogin-4"
+		set {_buttons} to new components row
+		add new secondary button with url "pticket-sftp-%discord id of event-member%" named "%yaml value "Options.Ticket.Button.Sftp.Title" from "config"%" with reaction "%yaml value "Options.Ticket.Button.Sftp.Emoji" from "config"%" to components of {_buttons}
+		post "%yaml value "Language.Sftp-First-Step-Completed" from "language"%" to channel event-textchannel with components {_buttons} and store it in {pticket::sftp::%discord id of event-member%}
+	
+
+	if {_id} = "Sftp":
+		defer the interaction
+		set {_a::1} to values of text input with id "Sftp-1"
+		set {_a::2} to values of text input with id "Sftp-2"
+
+		set {_file} to new File("%{_a::1}%")
+		set {_client} to connect host "%{sftp::%discord id of event-member%::a::1}%" and port {sftp::%discord id of event-member%::a::2} with username "%{sftp::%discord id of event-member%::a::3}%" and password "%{sftp::%discord id of event-member%::a::4}%"
+	
+	
+	
+		if {_client}.isConnected() and {_client}.isAuthenticated() and {_file}.exits() = true:
+			set {_ms} to unix timestamp of now * 1000
+			
+			sftp upload file "%{_a::1}%" to "%{_a::2}%" with client {_client}
+			set {_gecikme} to unix timestamp of now * 1000 - {_ms}
+
+			set {_buttons} to new components row
+			add new disabled secondary button with url "pticket-disabled" named "%yaml value "Options.Ticket.Button.Sftpdone.Title" from "config"%" with reaction "%yaml value "Options.Ticket.Button.Sftpdone.Emoji" from "config"%" to components of {_buttons}
+			make new embed:
+				set title of embed to "%yaml value "Options.Ticket.Sftp.Embed.Title" from "config"%"
+
+				add inline field named "%yaml value "Options.Ticket.Sftp.Embed.Field.Node.Name" from "config"%" with value "%{sftp::%discord id of event-member%::a::1}%" to fields of embed
+				add inline field named "%yaml value "Options.Ticket.Sftp.Embed.Field.Port.Name" from "config"%" with value "%{sftp::%discord id of event-member%::a::2}%" to fields of embed
+				add inline field named "%yaml value "Options.Ticket.Sftp.Embed.Field.File.Name" from "config"%" with value "%{_a::1}%" to fields of embed
+				add inline field named "%yaml value "Options.Ticket.Sftp.Embed.Field.Path.Name" from "config"%" with value "%{_a::2}%" to fields of embed
+				add inline field named "%yaml value "Options.Ticket.Sftp.Embed.Field.Ping.Name" from "config"%" with value "%{_gecikme}% ms" to fields of embed
+				set footer of embed to "%yaml value "Options.Ticket.Sftp.Embed.Footer" from "config"%"	
+				set embed color of embed to aqua
+				set timestamp of embed to now
+			edit message {pticket::sftp::%discord id of event-member%} to show last embed with components row {_buttons}
+			delete {sftp::%discord id of event-member%::*}
+		else:
+			set {_buttons} to new components row
+			add new disabled secondary button with url "pticket-disabled" named "%yaml value "Options.Ticket.Button.Sftpunsuccesfully.Title" from "config"%" with reaction "%yaml value "Options.Ticket.Button.Sftpunsuccesfully.Emoji" from "config"%" to components of {_buttons}
+			make new embed:
+				set title of embed to "%yaml value "Options.Ticket.Sftp.Embed.Title" from "config"%"
+
+				add inline field named "%yaml value "Options.Ticket.Sftp.Embed.Field.Node.Name" from "config"%" with value "%{sftp::%discord id of event-member%::a::1}%" to fields of embed
+				add inline field named "%yaml value "Options.Ticket.Sftp.Embed.Field.Port.Name" from "config"%" with value "%{sftp::%discord id of event-member%::a::2}%" to fields of embed
+				add inline field named "%yaml value "Options.Ticket.Sftp.Embed.Field.File.Name" from "config"%" with value "%{_a::1}%" to fields of embed
+				add inline field named "%yaml value "Options.Ticket.Sftp.Embed.Field.Path.Name" from "config"%" with value "%{_a::2}%" to fields of embed
+				add inline field named "%yaml value "Options.Ticket.Sftp.Embed.Field.Ping.Name" from "config"%" with value ":x:" to fields of embed
+				
+				set footer of embed to "%yaml value "Options.Ticket.Sftp.Embed.Footer" from "config"%"	
+				set embed color of embed to aqua
+				set timestamp of embed to now
+			edit message {pticket::sftp::%discord id of event-member%} to show last embed with components row {_buttons}
+			set {_error::*} to SftpErrorDetector({_client}, {_file})
+			loop {_error::*}:
+				post "Errors -> %loop-value%" to channel event-channel
+			delete {sftp::%discord id of event-member%::*}			
+
+
+
+
+on message receive:
+	if discord id of parent of event-channel = (yaml value "Options.Category-ID" from "config"):
+		log "%now% - %discord id of event-member% - %event-member% -> %event-message%" to "pDiscord/ticket-logs/%discord id of event-channel%/messages.log"
